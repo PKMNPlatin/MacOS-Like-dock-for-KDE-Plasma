@@ -97,6 +97,11 @@
       <default>18</default>
     </entry>
 
+    <entry name="keepPanelBackground" type="Bool">
+      <label>Whether to keep Plasma's panel background and shadow while the dock masks its own region, instead of leaving it to a compositor effect.</label>
+      <default>true</default>
+    </entry>
+
     <!-- Anti-clip Setting -->
     <entry name="antiClip" type="Bool">
       <label>Whether to reduce icon size by 10% to prevent clipping during zoom.</label>

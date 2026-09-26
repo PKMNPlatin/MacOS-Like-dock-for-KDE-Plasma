@@ -212,13 +212,21 @@ PlasmoidItem {
             }
         }
 
+        DockMask {
+            id: dockMask
+            dock: taskList
+            rowLength: taskList.regionRowLength
+            vertical: root.vertical
+            keepBackground: Plasmoid.configuration.keepPanelBackground
+        }
+
         TaskList {
             id: taskList
-            // Fixed positioning - no centerIn to avoid recalculation on hover
-            anchors.left: root.vertical ? undefined : parent.left
-            anchors.top: root.vertical ? parent.top : undefined
-            anchors.verticalCenter: root.vertical ? undefined : parent.verticalCenter
-            anchors.horizontalCenter: root.vertical ? parent.horizontalCenter : undefined
+            // Centered only when masking its own region
+            anchors.left: !root.vertical && !dockMask.isActive ? parent.left : undefined
+            anchors.top: root.vertical && !dockMask.isActive ? parent.top : undefined
+            anchors.horizontalCenter: root.vertical || dockMask.isActive ? parent.horizontalCenter : undefined
+            anchors.verticalCenter: !root.vertical || dockMask.isActive ? parent.verticalCenter : undefined
 
             // Pass the actual panel size to TaskList
             width: root.vertical ? parent.width : implicitWidth

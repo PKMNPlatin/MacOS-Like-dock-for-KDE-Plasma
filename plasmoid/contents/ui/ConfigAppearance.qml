@@ -22,6 +22,7 @@ KCM.SimpleKCM {
     property alias cfg_fill: fillCheck.checked
     property alias cfg_antiClip: antiClipCheck.checked
     property alias cfg_iconSizePercent: iconSizePercentSlider.value
+    property alias cfg_keepPanelBackground: keepPanelBackgroundCheck.checked
 
     // Convert between UI scale (1-10) and real zoom factor (1.0-1.24)
     // UI 1 = 1.0x (no zoom), UI 10 = 1.24x (max zoom without clipping)
@@ -188,6 +189,12 @@ KCM.SimpleKCM {
             QQC2.Label {
                 text: iconSizePercentSlider.value + "%"
             }
+        }
+
+        QQC2.CheckBox {
+            id: keepPanelBackgroundCheck
+            Kirigami.FormData.label: i18n("Panel background:")
+            text: i18n("Keep the panel background and shadow")
         }
     }
 }
