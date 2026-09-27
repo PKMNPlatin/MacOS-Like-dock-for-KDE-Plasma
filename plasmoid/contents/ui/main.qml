@@ -223,10 +223,9 @@ PlasmoidItem {
         TaskList {
             id: taskList
             // Centered only when masking its own region
-            anchors.left: !root.vertical && !dockMask.isActive ? parent.left : undefined
-            anchors.top: root.vertical && !dockMask.isActive ? parent.top : undefined
-            anchors.horizontalCenter: root.vertical || dockMask.isActive ? parent.horizontalCenter : undefined
-            anchors.verticalCenter: !root.vertical || dockMask.isActive ? parent.verticalCenter : undefined
+            // Not anchors: left and horizontalCenter at once while switching drops the width binding
+            x: root.vertical || dockMask.isActive ? Math.round((parent.width - width) / 2) : 0
+            y: !root.vertical || dockMask.isActive ? Math.round((parent.height - height) / 2) : 0
 
             // Pass the actual panel size to TaskList
             width: root.vertical ? parent.width : implicitWidth
