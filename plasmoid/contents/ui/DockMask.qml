@@ -32,14 +32,14 @@ Item {
         return null;
     }
 
+    // The others anchor-fill it; matching by position lags while floating animates
     readonly property Item nativeBackground: {
         if (!panelElement) return null;
-        var offset = panelElement.floatingTranslucentItemOffset;
         for (var index = 0; index < panelElement.children.length; index++) {
             var child = panelElement.children[index];
             var isPanelBackground = child.imagePath && child.imagePath.toString().includes("panel-background");
-            if (isPanelBackground && child.x === offset.x && child.y === offset.y) {
-                return child;
+            if (isPanelBackground && child.anchors.fill) {
+                return child.anchors.fill;
             }
         }
         return null;
