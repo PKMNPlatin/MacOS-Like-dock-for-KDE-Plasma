@@ -18,6 +18,7 @@ Item {
     property real zoomFactor: 1.5
     property int zoomDuration: 150
     property bool zoomNeighbors: true
+    property bool growOnMagnifiedSide: true
     property real neighborZoomFactor: 1.2
     property int iconSpacing: 1
     property bool widgetHovered: false
@@ -261,6 +262,19 @@ Item {
         return 0;
     }
 
+    // Growth before the cursor, so the icon under it stays put
+    function leadingGrowthOf(zooms, cursor) {
+        if (!growOnMagnifiedSide) {
+            return cellSize * zooms.reduce((sum, zoom) => sum + zoom - 1, 0) / 2;
+        }
+        var growth = 0;
+        for (var index = 0; index < zooms.length; index++) {
+            var coveredFraction = Math.max(0, Math.min(1, cursor / cellSize - index));
+            growth += cellSize * (zooms[index] - 1) * coveredFraction;
+        }
+        return growth;
+    }
+
     readonly property var zoomLayout: {
         var zooms = [];
         var starts = [];
@@ -271,28 +285,40 @@ Item {
             starts.push(length);
             length += cellSize * zoom;
         }
-        return { zooms: zooms, starts: starts, length: length };
+        var leadingGrowth = leadingGrowthOf(zooms, pointerCursor);
+        return {
+            zooms: zooms,
+            starts: starts,
+            length: length,
+            leadingGrowth: leadingGrowth,
+            trailingGrowth: length - restLength - leadingGrowth
+        };
     }
 
-    // Widest the magnified row can get
-    readonly property real hoverLength: {
-        var widest = restLength;
+    // Most the magnified row can grow to either side
+    readonly property real maximumSideGrowth: {
+        var widest = 0;
         var samplesPerCell = 8;
         for (var sample = 0; sample <= taskRepeater.count * samplesPerCell; sample++) {
             var cursor = sample * cellSize / samplesPerCell;
-            var length = 0;
+            var zooms = [];
+            var growth = 0;
             for (var index = 0; index < taskRepeater.count; index++) {
-                length += cellSize * zoomAtCursor(index, cursor);
+                zooms.push(zoomAtCursor(index, cursor));
+                growth += cellSize * (zooms[index] - 1);
             }
-            widest = Math.max(widest, length);
+            var leadingGrowth = leadingGrowthOf(zooms, cursor);
+            widest = Math.max(widest, leadingGrowth, growth - leadingGrowth);
         }
         return widest;
     }
 
     // Fixed so hovering never resizes the panel; even to stay centered
-    readonly property int reservedSize: 2 * Math.ceil(hoverLength / 2)
+    readonly property int reservedSize: 2 * Math.ceil(restLength / 2 + maximumSideGrowth)
 
-    readonly property real regionRowLength: restLength + (hoverLength - restLength) * panelProgress
+    // Centered growth holds the mask at its widest while hovering
+    readonly property real maskLeadingGrowth: growOnMagnifiedSide ? zoomLayout.leadingGrowth : maximumSideGrowth * panelProgress
+    readonly property real maskTrailingGrowth: growOnMagnifiedSide ? zoomLayout.trailingGrowth : maximumSideGrowth * panelProgress
 
     implicitWidth: vertical ? panelThickness : reservedSize
     implicitHeight: vertical ? reservedSize : panelThickness
@@ -307,7 +333,7 @@ Item {
         var origin = mapToItem(null, 0, 0);
         var offset = vertical ? window.height / 2 - origin.y - height / 2
                               : window.width / 2 - origin.x - width / 2;
-        var isResizing = panelProgress > 0 && panelProgress < 1;
+        var isResizing = (zoomStrength > 0 && zoomStrength < 1) || (panelProgress > 0 && panelProgress < 1);
         if (!isResizing) {
             isCenteredInWindow = Math.abs(offset) < 1;
         }
@@ -384,8 +410,9 @@ Item {
                 required property var model
                 required property int index
 
-                readonly property real slotStart: ((vertical ? taskListRoot.height : taskListRoot.width) - taskListRoot.zoomLayout.length) / 2
+                readonly property real slotStart: ((vertical ? taskListRoot.height : taskListRoot.width) - taskListRoot.restLength) / 2
                     + taskListRoot.windowCenterOffset
+                    - taskListRoot.zoomLayout.leadingGrowth
                     + (taskListRoot.zoomLayout.starts[index] || 0)
                 readonly property real slotLength: taskListRoot.cellSize * (taskListRoot.zoomLayout.zooms[index] || 1)
 

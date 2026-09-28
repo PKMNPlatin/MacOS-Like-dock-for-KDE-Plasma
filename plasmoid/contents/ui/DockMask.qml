@@ -11,6 +11,8 @@ Item {
 
     property Item dock
     property real rowLength: 0
+    property real leadingGrowth: 0
+    property real trailingGrowth: 0
     property bool vertical: false
     property bool keepBackground: true
 
@@ -55,16 +57,18 @@ Item {
         return appletStart - (vertical ? nativeBackground.y : nativeBackground.x);
     }
 
-    // Even to stay centered
-    readonly property int regionLength: 2 * Math.round((rowLength + 2 * padding) / 2)
+    // Even to stay centered at rest
+    readonly property int restRegionLength: 2 * Math.round((rowLength + 2 * padding) / 2)
 
     // Plasma offsets the mask by the background's position
     readonly property rect regionRect: {
         if (!nativeBackground) return Qt.rect(0, 0, 0, 0);
         var backgroundLength = vertical ? nativeBackground.height : nativeBackground.width;
-        var start = Math.round((backgroundLength - regionLength) / 2);
-        return vertical ? Qt.rect(0, start, nativeBackground.width, regionLength)
-                        : Qt.rect(start, 0, regionLength, nativeBackground.height);
+        var restStart = Math.round((backgroundLength - restRegionLength) / 2);
+        var start = restStart - Math.round(leadingGrowth);
+        var length = restRegionLength + Math.round(leadingGrowth) + Math.round(trailingGrowth);
+        return vertical ? Qt.rect(0, start, nativeBackground.width, length)
+                        : Qt.rect(start, 0, length, nativeBackground.height);
     }
 
     Binding {

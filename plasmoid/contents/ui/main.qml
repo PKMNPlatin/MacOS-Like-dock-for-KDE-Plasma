@@ -215,7 +215,9 @@ PlasmoidItem {
         DockMask {
             id: dockMask
             dock: taskList
-            rowLength: taskList.regionRowLength
+            rowLength: taskList.restLength
+            leadingGrowth: taskList.maskLeadingGrowth
+            trailingGrowth: taskList.maskTrailingGrowth
             vertical: root.vertical
             keepBackground: Plasmoid.configuration.keepPanelBackground
         }
@@ -242,6 +244,7 @@ PlasmoidItem {
             showAudioIndicator: root.showAudioIndicator
             allowVolumeControl: root.allowVolumeControl
             zoomNeighbors: root.zoomNeighbors
+            growOnMagnifiedSide: Plasmoid.configuration.growOnMagnifiedSide
             neighborZoomFactor: root.neighborZoomFactor
             iconSpacing: Plasmoid.configuration.iconSpacing
             widgetHovered: widgetHoverHandler.hovered

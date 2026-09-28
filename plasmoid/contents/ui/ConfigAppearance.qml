@@ -15,6 +15,7 @@ KCM.SimpleKCM {
     property real cfg_zoomFactor: 1.1866666666666665
     property alias cfg_zoomDuration: zoomDurationSlider.value
     property alias cfg_zoomNeighbors: zoomNeighborsCheck.checked
+    property alias cfg_growOnMagnifiedSide: growOnMagnifiedSideCheck.checked
     property real cfg_neighborZoomFactor: 1.1066666666666667
     property alias cfg_parabolicEnabled: parabolicEnabledCheck.checked
     property alias cfg_maxParabolicRise: parabolicRiseSlider.value
@@ -114,6 +115,13 @@ KCM.SimpleKCM {
             QQC2.Label {
                 text: i18n("Level %1 (%2x)", Math.round(neighborZoomFactorSlider.value), uiToReal(neighborZoomFactorSlider.value).toFixed(2))
             }
+        }
+
+        QQC2.CheckBox {
+            id: growOnMagnifiedSideCheck
+            Kirigami.FormData.label: i18n("Dock growth:")
+            text: i18n("Grow only on the magnified side (macOS style)")
+            enabled: zoomEnabledCheck.checked
         }
 
         Kirigami.Separator {
