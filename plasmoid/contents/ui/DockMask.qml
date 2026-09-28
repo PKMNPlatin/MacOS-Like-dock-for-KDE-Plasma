@@ -45,10 +45,14 @@ Item {
         return null;
     }
 
+    // From the applet's edge, the background can lag behind a shrinking panel
     readonly property real padding: {
-        if (!nativeBackground || !dock) return 0;
-        return vertical ? (nativeBackground.height - dock.height) / 2
-                        : (nativeBackground.width - dock.width) / 2;
+        if (!nativeBackground || !dock || !panelElement) return 0;
+        var appletStart = 0;
+        for (var item = dock.parent; item && item !== panelElement; item = item.parent) {
+            appletStart += vertical ? item.y : item.x;
+        }
+        return appletStart - (vertical ? nativeBackground.y : nativeBackground.x);
     }
 
     // Even to stay centered
